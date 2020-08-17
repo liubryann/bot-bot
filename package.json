@@ -9,5 +9,6 @@
   },
   "dependencies": {
     "dotenv": "^8.2.0"
-  }
+  },
+  "heroku-postbuild": "npm install --production"
 }
