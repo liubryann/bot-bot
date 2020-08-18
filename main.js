@@ -38,17 +38,16 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
         if (oldUserChannel == null) {
             console.log(typeof newMember.member.id)
             console.log(newMember.member.id)
-            pool.query = (
+            pool.query (
                 'SELECT * FROM social_credit_score WHERE id=$1',
-                ['hi'],
+                [newMember.member.id],
                 (err, result) => {
                     if (err) {
                         return console.error("Query error", err.stack)
                     }
-                    console.log("here2")
-                    console.log(result.rows[0])
                     if (result.rows[0] == undefined) {
-                        console.log("congrats")
+                        monitoredChannel.send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay." )
+                        insertInitalScore(newMember.member.id)
                     }
                 }
             )
@@ -65,6 +64,18 @@ client.on('message', (receivedMessage) => {
         processCommand(receivedMessage)
     }
 })
+
+function insertInitalScore(memberId) {
+    pool.query(
+        'INSERT INTO social_credit_score (id, score) VALUES ($1, 100)',
+        [memberId],
+        (err) => {
+            if (err) {
+                return console.error("Query error", err.stack)
+            }
+        }
+    )
+}
 
 function scheduledMessage(channelId) {
     // var monitoredChannel = client.channels.cache.get(channelId)
@@ -123,8 +134,6 @@ function processCommand(receivedMessage) {
             }
         )
     }
-    
-
 }
 
 // Get your bot's secret token from:
