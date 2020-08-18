@@ -77,7 +77,7 @@ function getGeneralChannel(voiceState) {
     voiceState.guild.channels.cache.forEach((channel) => {
         if (channel.type == 'text'){
             console.log(channel.id)
-            return channel; 
+            return client.channels.get(channel.id)
         }
     })
 }
