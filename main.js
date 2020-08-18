@@ -30,8 +30,6 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
     
     if(oldUserChannel != newUserChannel) {
         if (oldUserChannel == null) {
-            console.log(typeof newMember.member.id)
-            console.log(newMember.member.id)
             pool.query (
                 'SELECT * FROM social_credit_score WHERE id=$1',
                 [newMember.member.id],
@@ -40,12 +38,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
                         return console.error("Query error", err.stack)
                     }
                     if (result.rows[0] == undefined) {
-                        
                         sendWelcomeMessage(newMember)
-                        // getGeneralChannel().send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay.")      
-
-                        // generalChannel.send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay.")
-                        // getGeneralChannel(newMember).send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay." )
                         insertInitalScore(newMember.member.id)
                     }
                 }
@@ -65,18 +58,20 @@ client.on('message', (receivedMessage) => {
 })
 
 function insertInitalScore(memberId) {
+    console.log("Inserting initial score")
     pool.query(
         'INSERT INTO social_credit_score (id, score) VALUES ($1, 100)',
         [memberId],
         (err) => {
             if (err) {
-                return console.error("Query error", err.stack)
+                return console.error("InsertInitialScoreQuery error", err.stack)
             }
         }
     )
 }
 
 function sendWelcomeMessage(newMember) {
+    console.log("Sending welcome message")
     newMember.guild.channels.cache.forEach((channel) => { 
          if (channel.type == 'text') {
             channel.send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay.")
@@ -86,6 +81,7 @@ function sendWelcomeMessage(newMember) {
 }
 
 function scheduledMessage(monitoredChannels) {
+    console.log("Sending scheduled message")
     for (channel of monitoredChannels){
         channel.send("Encrypting and sending chat logs to Xi Jinping...")
     }
@@ -102,10 +98,10 @@ function processCommand(receivedMessage) {
 
     if (primaryCommand == "help") {
         if (users.isElton(receivedMessage.author.id)) {
-            client.channels.cache.get(receivedMessage.channel.id).send("Fuck u figure it out")
+            receivedMessage.channel.send("Fuck u figure it out")
         }
         else {
-            client.channels.cache.get(receivedMessage.channel.id).send("I'm here to help")
+            receivedMessage.channel.send("I'm here to help")
         }
     }
 
@@ -116,15 +112,7 @@ function processCommand(receivedMessage) {
     // }
     
     else if (primaryCommand == "report") {
-        pool.query(
-            'INSERT INTO social_credit_score (id, score) VALUES ($1, $2)',
-            ['Justin', 3],
-            (err) => {
-                if (err) {
-                    return console.error("Query error", err.stack)
-                }
-            }
-        )
+      reportCommand(arguments, receivedMessage)
     }
 
     else if (primaryCommand == "score") {
@@ -138,6 +126,68 @@ function processCommand(receivedMessage) {
                 console.log(result.rows[0])
             }
         )
+    }
+}
+
+function reportCommand(arguments, receivedMessage) {
+    if (validateArguments(arguments, receivedMessage)) {
+        let result = retrieveScoreByIdQuery(receivedMessage.mentions.users.first().id)
+        let updatedScore = result.score - parseInt(arguments[1])
+        updateScoreByIdQuery(receivedMessage.mentions.users.first().id, updatedScore)
+        evaluateScore(updatedScore, receivedMessage, receivedMessage.mentions.users.first().displayName)
+    }
+    else {
+        receivedMessage.channel.send("Try using !help. The chinese government is happy to assist.")
+    }
+}
+
+function scoreCommand() {
+    console.log("hellu")
+}
+
+function retrieveScoreByIdQuery(id) {
+    pool.query(
+        'SELECT * FROM social_credit_score WHERE id=$1',
+        [id],
+        (err, result) => {
+            if (err) {
+                return console.error("SelectScoreByIdQuery error", err.stack)
+            }
+            return result.rows[0]
+        }
+    )
+}
+
+function updateScoreByIdQuery(id, score) {
+    pool.query(
+        'UPDATE scoial_credit_score SET score=$2 WHERE id=$1',
+        [id, score],
+        (err) => {
+            if (err) {
+                return console.error("UpdateScoreByIdQuery error", err.stack)
+            }
+        }
+    )
+}
+
+function validateArguments (arguments, receivedMessage) {
+    if (arguments.length < 2) {
+        return false
+    }
+    else if (receivedMessage.mentions.users.size != 1) {
+        return false 
+    }
+    else if (isNaN(parseInt(arguments[1]))) {
+        return false
+    }
+    else {
+        return true
+    }
+}
+
+function evaluateScore(score, receivedMessage, user) {
+    if (score < 0) {
+        receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + " For their crimes against the Replubic of China they will be subject to capital punishment.")
     }
 }
 
