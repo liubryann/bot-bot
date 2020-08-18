@@ -72,7 +72,7 @@ function insertInitalScore(memberId) {
 }
 
 function getGeneralChannel(voiceState) {
-    voiceState.guild.channels.forEach((channel) => {
+    voiceState.guild.channels.cache.forEach((channel) => {
         if (channel.type == 'text'){
             return channel; 
         }
