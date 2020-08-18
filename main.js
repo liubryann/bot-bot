@@ -80,7 +80,7 @@ function sendWelcomeMessage(voiceState) {
     voiceState.guild.channels.cache.forEach((channel) => { 
          if (channel.type == 'text') {
             channel.send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay.")
-            break
+            return
         }   
     })
 }
