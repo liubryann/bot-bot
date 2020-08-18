@@ -110,7 +110,7 @@ function processCommand(receivedMessage) {
     else if (primaryCommand == "score") {
         pool.query(
             'SELECT * FROM social_credit_score WHERE id=$1',
-            ['Justin'],
+            ['idk'],
             (err, result) => {
                 if (err) {
                     return console.error("Query error", err.stack)
