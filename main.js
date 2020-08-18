@@ -4,10 +4,10 @@ require('dotenv').config()
 const {pool} = require('./config')
 const client = new Discord.Client()
 
-var monitoredChannel
-const dbClient = await pool.connect()
+var monitoredChannel = client.channels.cache.get("245711852514967555")
 
 client.on('ready', () => {
+    pool.connect();
     client.user.setActivity("and listening", {type: "WATCHING"})
     console.log("Connected as " + client.user.tag)
     client.guilds.cache.forEach((guild) => {
@@ -51,7 +51,7 @@ function processCommand(receivedMessage) {
     }
     
     else if (primaryCommand == "report") {
-        dbClient.query(
+        pool.query(
             'INSERT INTO social_credit_score (name, score) VALUES ($1, $2)',
             ['Justin', 3],
             (err) => {
@@ -63,7 +63,7 @@ function processCommand(receivedMessage) {
     }
 
     else if (primaryCommand == "score") {
-        dbClient.query(
+        pool.query(
             'SELECT * FROM social_credit_score WHERE name=$1',
             ['Justin'],
             (err, result) => {
