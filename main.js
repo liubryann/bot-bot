@@ -1,8 +1,17 @@
 const Discord = require('discord.js')
 const cron = require("node-cron")
 require('dotenv').config()
-const {pool} = require('./config')
+// const {pool} = require('./config')
 const client = new Discord.Client()
+
+const {Pool} = require('pg')
+
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false
+    }
+})
 
 var monitoredChannel = client.channels.cache.get("245711852514967555")
 
