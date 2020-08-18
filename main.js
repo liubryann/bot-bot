@@ -34,6 +34,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
     let oldUserChannel = oldMember.voiceChannel
     
     if(oldUserChannel === undefined && newUserChannel !== undefined) {
+        console.log("I am here")
         pool.query = (
             'SELECT * FROM social_credit_score WHERE id=$1',
             [newMember.guild.id],
@@ -58,7 +59,7 @@ client.on('message', (receivedMessage) => {
 })
 
 function scheduledMessage(channelId) {
-    var monitoredChannel = client.channels.cache.get(channelId)
+    // var monitoredChannel = client.channels.cache.get(channelId)
     monitoredChannel.send("Encrypting and sending chat logs to Xi Jinping...")
 }
 
