@@ -101,7 +101,7 @@ function processCommand(receivedMessage) {
             receivedMessage.channel.send("Fuck u figure it out") 
         }
         else {
-            receivedMessage.channel.send("Use !praise @name 1-5 to praise your friends for being model citizens.\n Use !report @name 1-5 to report your enemies for crimes against the country.\n Use !score @name to see someone's score.")
+            receivedMessage.channel.send("Use !praise @name 1-5 to praise your friends for being model citizens.\nUse !report @name 1-5 to report your enemies for crimes against the country.\nUse !score @name to see someone's score.")
         }
     }
 
