@@ -40,7 +40,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
             console.log(newMember.member.id)
             pool.query = (
                 'SELECT * FROM social_credit_score WHERE id=$1',
-                [newMember.member.id.toString],
+                ['hi'],
                 (err, result) => {
                     if (err) {
                         return console.error("Query error", err.stack)
