@@ -39,7 +39,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
             console.log(":(")
             pool.query = (
                 'SELECT * FROM social_credit_score WHERE id=$1',
-                [newMember.member.id],
+                [12314131231312],
                 (err, result) => {
                     if (err) {
                         return console.error("Query error", err.stack)
@@ -97,7 +97,7 @@ function processCommand(receivedMessage) {
     
     else if (primaryCommand == "report") {
         pool.query(
-            'INSERT INTO social_credit_score (name, score) VALUES ($1, $2)',
+            'INSERT INTO social_credit_score (id, score) VALUES ($1, $2)',
             ['Justin', 3],
             (err) => {
                 if (err) {
@@ -109,7 +109,7 @@ function processCommand(receivedMessage) {
 
     else if (primaryCommand == "score") {
         pool.query(
-            'SELECT * FROM social_credit_score WHERE name=$1',
+            'SELECT * FROM social_credit_score WHERE id=$1',
             ['Justin'],
             (err, result) => {
                 if (err) {
