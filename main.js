@@ -1,6 +1,7 @@
 const Discord = require('discord.js')
 const cron = require("node-cron")
 require('dotenv').config()
+const {pool} = require('./config')
 const client = new Discord.Client()
 
 // var monitoredChannel = client.channels.cache.get("245711852514967555")
@@ -19,22 +20,22 @@ client.on('ready', () => {
     })
 })
 
-// client.on('message', (recievedMessage) => {
-//     if (recievedMessage.author == client.user) {
-//         return
-//     }
+client.on('message', (receivedMessage) => {
+    if (receivedMessage.author == client.user) {
+        return
+    }
 
-//     if (receievedMessage.content.startsWith("!")){
-//         processCommand(recievedMessage)
-//     }
-// })
+    if (receivedMessage.content.startsWith("!")){
+        processCommand(receivedMessage)
+    }
+})
 
 function scheduledMessage(channelId) {
     var monitoredChannel = client.channels.cache.get(channelId)
     monitoredChannel.send("Encrypting and sending chat logs to Xi Jinping...")
 }
 
-function processCommand(recievedMessage) {
+function processCommand(receivedMessage) {
     let fullCommand = receivedMessage.content.substr(1)
     let splitCommand = fullCommand.split(" ")
     let primaryCommand = splitCommand[0]
@@ -44,8 +45,34 @@ function processCommand(recievedMessage) {
     console.log("Arguments: " + arguments)
 
     if (primaryCommand == "help") {
-        monitoredChannel.send("")
+        monitoredChannel.send("I'm here to help")
     }
+    
+    else if (primaryCommand == "report") {
+        pool.query(
+            'INSERT INTO social_credit_score (name, score) VALUES ($1, $2)',
+            ['Justin', 3],
+            (err) => {
+                if (err) {
+                    return console.error("Query error", err.stack)
+                }
+            }
+        )
+    }
+
+    else if (primaryCommand == "score") {
+        pool.query(
+            'SELECT * FROM social_credit_score WHERE name=$1',
+            ['Justin'],
+            (err, result) => {
+                if (err) {
+                    return console.error("Query error", err.stack)
+                }
+                console.log(result.rows[0])
+            }
+        )
+    }
+    
 
 }
 
