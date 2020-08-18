@@ -41,9 +41,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
                 if (err) {
                     return console.error("Query error", err.stack)
                 }
-                if (result == null) {
-                    console.log ("congrats")
-                }
+                console.log(result.rows[0])
             }
         )
     }
