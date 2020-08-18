@@ -131,10 +131,14 @@ function processCommand(receivedMessage) {
 
 function reportCommand(arguments, receivedMessage) {
     if (validateArguments(arguments, receivedMessage)) {
-        let result = retrieveScoreByIdQuery(receivedMessage.mentions.users.first().id)
-        let updatedScore = result.score - parseInt(arguments[1])
-        updateScoreByIdQuery(receivedMessage.mentions.users.first().id, updatedScore)
-        evaluateScore(updatedScore, receivedMessage, receivedMessage.mentions.users.first().displayName)
+        let user = receivedMessage.mentions.users.first()
+        let result = retrieveScoreByIdQuery(user.id).then(() => {
+            let updatedScore = result.score - parseInt(arguments[1])
+            updateScoreByIdQuery(user.id, updatedScore)
+            receivedMessage.channel.send("Thank you for your report against " + user.displayName + "." + " They will be punished accordingly.")
+            evaluateScore(updatedScore, receivedMessage, receivedMessage.mentions.users.first().displayName)
+
+        })
     }
     else {
         receivedMessage.channel.send("Try using !help. The chinese government is happy to assist.")
