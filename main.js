@@ -1,16 +1,9 @@
 const Discord = require('discord.js')
 const cron = require("node-cron")
 require('dotenv').config()
-// const {pool} = require('./config')
+const {pool} = require('./config')
+const users = require('./userIdConstants')
 const client = new Discord.Client()
-
-const {Pool} = require('pg')
-console.log(process.env.DATABASE_URL)
-
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: true
-})
 
 var monitoredChannel
 
@@ -83,10 +76,6 @@ function scheduledMessage(channelId) {
 }
 
 function processCommand(receivedMessage) {
-    let isElton = receivedMessage.author.id == 283411716358799360
-    let isBryan = receivedMessage.author.id == 290642739140493312
-    let isRajah = receivedMessage.author.id == 312948893966925826
-
     let fullCommand = receivedMessage.content.substr(1)
     let splitCommand = fullCommand.split(" ")
     let primaryCommand = splitCommand[0]
@@ -96,7 +85,7 @@ function processCommand(receivedMessage) {
     console.log("Arguments: " + arguments)
 
     if (primaryCommand == "help") {
-        if (isElton) {
+        if (users.isBryan(receivedMessage.author.id)) {
             monitoredChannel.send("Fuck u figure it out")
         }
         else {

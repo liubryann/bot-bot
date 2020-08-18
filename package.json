@@ -8,7 +8,9 @@
     "npm": "6.14.7"
   },
   "scripts": {
-    "start": "node main.js"
+    "start": "node main.js",
+    "init": "cat init.sql | heroku pg:psql postgresql-closed-66780",
+    "clean": "cat clean.sql | heroku pg:psql postgresql-closed-66780"
   },
   "dependencies": {
     "discord.js": "^12.3.1",
