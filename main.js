@@ -30,21 +30,23 @@ client.on('ready', () => {
 })
 
 client.on('voiceStateUpdate', (oldMember, newMember) => {
-    let newUserChannel = newMember.voiceChannel
-    let oldUserChannel = oldMember.voiceChannel
+    let newUserChannel = newMember.channelID
+    let oldUserChannel = oldMember.channelID
     
-    if(oldUserChannel === undefined && newUserChannel !== undefined) {
+    if(oldUserChannel != newUserChannel) {
         console.log("I am here")
-        pool.query = (
-            'SELECT * FROM social_credit_score WHERE id=$1',
-            [newMember.guild.id],
-            (err, result) => {
-                if (err) {
-                    return console.error("Query error", err.stack)
+        if (oldUserChannel == null) {
+            pool.query = (
+                'SELECT * FROM social_credit_score WHERE id=$1',
+                [newMember.guild.id],
+                (err, result) => {
+                    if (err) {
+                        return console.error("Query error", err.stack)
+                    }
+                    console.log(result.rows[0])
                 }
-                console.log(result.rows[0])
-            }
-        )
+            )
+        }
     }
 })
 
