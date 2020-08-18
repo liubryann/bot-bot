@@ -97,11 +97,11 @@ function processCommand(receivedMessage) {
     console.log("Arguments: " + arguments)
 
     if (primaryCommand == "help") {
-        if (users.isElton(receivedMessage.author.id)) {
-            receivedMessage.channel.send("Fuck u figure it out")
+        if (users.isElton(receivedMessage.author.id) || users.isRajah(receivedMessage.author.id) || users.isAbdu(receivedMessage.author.id)) {
+            receivedMessage.channel.send("Fuck u figure it out") 
         }
         else {
-            receivedMessage.channel.send("I'm here to help")
+            receivedMessage.channel.send("Use !praise @name 1-5 to praise your friends for being model citizens.\n Use !report @name 1-5 to report your enemies for crimes against the country.\n Use !score @name to see someone's score.")
         }
     }
 
@@ -264,6 +264,9 @@ function validateArguments (arguments, receivedMessage) {
     else if (isNaN(parseInt(arguments[1]))) {
         return false
     }
+    else if (parseInt(arguments[1]) <= 0 || parseInt(arguments[1]) > 5) {
+        return false
+    } 
     else {
         return true
     }
