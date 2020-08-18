@@ -131,9 +131,9 @@ function processCommand(receivedMessage) {
 
 function reportCommand(arguments, receivedMessage) {
     if (validateArguments(arguments, receivedMessage)) {
-        let user = receivedMessage.mentions.users.first()
-        let member = receivedMessage.guild.member(receivedMessage.author)
-        let displayName = member ? member.displayName : "this traitor"
+        var user = receivedMessage.mentions.users.first()
+        var member = receivedMessage.guild.member(receivedMessage.author)
+        var displayName = member ? member.displayName : "this traitor"
 
         receivedMessage.channel.send("Thank you for your report against " + displayName + "." + " They will be punished accordingly.")
 
