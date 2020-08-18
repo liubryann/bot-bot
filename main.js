@@ -135,8 +135,6 @@ function reportCommand(arguments, receivedMessage) {
         var member = receivedMessage.guild.member(user)
         var displayName = member ? member.displayName : "this traitor"
 
-        receivedMessage.channel.send("Thank you for your report against " + displayName + "." + " They will be punished accordingly.")
-
         pool.query(
             'SELECT * FROM social_credit_score WHERE id=$1',
             [user.id],
@@ -144,18 +142,26 @@ function reportCommand(arguments, receivedMessage) {
                 if (err) {
                     return console.error("SelectScoreByIdQuery error", err.stack)
                 }
-                let updatedScore = result.rows[0].score - parseInt(arguments[1])
+
+                if (result.rows[0] != undefined) {
+                    receivedMessage.channel.send("Thank you for your report against " + displayName + "." + " They will be punished accordingly.")
+                    let updatedScore = result.rows[0].score - parseInt(arguments[1])
                 
-                pool.query(
-                    'UPDATE social_credit_score SET score=$2 WHERE id=$1',
-                    [user.id, updatedScore],
-                    (err) => {
-                        if (err) {
-                            return console.error("UpdateScoreByIdQuery error", err.stack)
+                    pool.query(
+                        'UPDATE social_credit_score SET score=$2 WHERE id=$1',
+                        [user.id, updatedScore],
+                        (err) => {
+                            if (err) {
+                                return console.error("UpdateScoreByIdQuery error", err.stack)
+                            }
+                            evaluateScore(updatedScore, receivedMessage, displayName)
                         }
-                        evaluateScore(updatedScore, receivedMessage, displayName)
-                    }
-                )   
+                    ) 
+                }
+                else {
+                    receivedMessage.channel.send(displayName + " has not been to China recently but we invite them to join our glorious country.")
+                }
+                
             }
         ) 
     }
