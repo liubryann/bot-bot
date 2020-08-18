@@ -5,20 +5,22 @@ const {pool} = require('./config')
 const users = require('./userIdConstants')
 const client = new Discord.Client()
 
-var monitoredChannel
 
 client.on('ready', () => {
     client.user.setActivity("and listening", {type: "WATCHING"})
     console.log("Connected as " + client.user.tag)
+
+    var monitoredChannels = []
     client.guilds.cache.forEach((guild) => {
         guild.channels.cache.forEach((channel) => { 
             if (channel.type == 'text') {
-                cron.schedule("0 0 * * *", () => {
-                    scheduledMessage(channel.id)
-                })
-                monitoredChannel = client.channels.cache.get(channel.id)
+                monitoredChannels.push(channel) 
             }
         })
+    })
+
+    cron.schedule("0 0 * * *", () => {
+        scheduledMessage(monitoredChannels)
     })
 })
 
@@ -27,7 +29,6 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
     let oldUserChannel = oldMember.channelID
     
     if(oldUserChannel != newUserChannel) {
-        console.log("I am here")
         if (oldUserChannel == null) {
             console.log(typeof newMember.member.id)
             console.log(newMember.member.id)
@@ -39,7 +40,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
                         return console.error("Query error", err.stack)
                     }
                     if (result.rows[0] == undefined) {
-                        monitoredChannel.send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay." )
+                        getGeneralChannel(newMember).send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay." )
                         insertInitalScore(newMember.member.id)
                     }
                 }
@@ -70,9 +71,18 @@ function insertInitalScore(memberId) {
     )
 }
 
-function scheduledMessage(channelId) {
-    // var monitoredChannel = client.channels.cache.get(channelId)
-    monitoredChannel.send("Encrypting and sending chat logs to Xi Jinping...")
+function getGeneralChannel(voiceState) {
+    voiceState.guild.channels.forEach((channel) => {
+        if (channel.type == 'text'){
+            return channel; 
+        }
+    })
+}
+
+function scheduledMessage(monitoredChannels) {
+    for (channel of monitoredChannels){
+        channel.send("Encrypting and sending chat logs to Xi Jinping...")
+    }
 }
 
 function processCommand(receivedMessage) {
@@ -85,11 +95,11 @@ function processCommand(receivedMessage) {
     console.log("Arguments: " + arguments)
 
     if (primaryCommand == "help") {
-        if (users.isBryan(receivedMessage.author.id)) {
-            monitoredChannel.send("Fuck u figure it out")
+        if (users.isElton(receivedMessage.author.id)) {
+            client.channels.cache.get(receivedMessage.channel.id).send("Fuck u figure it out")
         }
         else {
-            monitoredChannel.send("I'm here to help")
+            client.channels.cache.get(receivedMessage.channel.id).send("I'm here to help")
         }
     }
 
