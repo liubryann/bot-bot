@@ -132,13 +132,29 @@ function processCommand(receivedMessage) {
 function reportCommand(arguments, receivedMessage) {
     if (validateArguments(arguments, receivedMessage)) {
         let user = receivedMessage.mentions.users.first()
-        let result = retrieveScoreByIdQuery(user.id).then(() => {
-            let updatedScore = result.score - parseInt(arguments[1])
-            updateScoreByIdQuery(user.id, updatedScore)
-            receivedMessage.channel.send("Thank you for your report against " + user.displayName + "." + " They will be punished accordingly.")
-            evaluateScore(updatedScore, receivedMessage, receivedMessage.mentions.users.first().displayName)
+        receivedMessage.channel.send("Thank you for your report against " + user.displayName + "." + " They will be punished accordingly.")
 
-        })
+        pool.query(
+            'SELECT * FROM social_credit_score WHERE id=$1',
+            [user.id],
+            (err, result) => {
+                if (err) {
+                    return console.error("SelectScoreByIdQuery error", err.stack)
+                }
+                let updatedScore = result.rows[0].score - parseInt(arguments[1])
+                
+                pool.query(
+                    'UPDATE social_credit_score SET score=$2 WHERE id=$1',
+                    [user.id, updatedScore],
+                    (err) => {
+                        if (err) {
+                            return console.error("UpdateScoreByIdQuery error", err.stack)
+                        }
+                        evaluateScore(updatedScore, receivedMessage, receivedMessage.mentions.users.first().displayName)
+                    }
+                )   
+            }
+        ) 
     }
     else {
         receivedMessage.channel.send("Try using !help. The chinese government is happy to assist.")
@@ -149,7 +165,7 @@ function scoreCommand() {
     console.log("hellu")
 }
 
-function retrieveScoreByIdQuery(id) {
+function retrieveScoreByIdQuery(id, callback) {
     pool.query(
         'SELECT * FROM social_credit_score WHERE id=$1',
         [id],
