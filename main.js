@@ -12,7 +12,7 @@ const pool = new Pool({
     ssl: true
 })
 
-var monitoredChannel = client.channels.cache.get("245711852514967555")
+var monitoredChannel
 
 client.on('ready', () => {
     client.user.setActivity("and listening", {type: "WATCHING"})
@@ -27,6 +27,26 @@ client.on('ready', () => {
             }
         })
     })
+})
+
+client.on('voiceStateUpdate', (oldMember, newMember) => {
+    let newUserChannel = newMember.voiceChannel
+    let oldUserChannel = oldMember.voiceChannel
+    
+    if(oldUserChannel === undefined && newUserChannel !== undefined) {
+        pool.query = (
+            'SELECT * FROM social_credit_score WHERE id=$1',
+            [newMember.guild.id],
+            (err, result) => {
+                if (err) {
+                    return console.error("Query error", err.stack)
+                }
+                if (result == null) {
+                    console.log ("congrats")
+                }
+            }
+        )
+    }
 })
 
 client.on('message', (receivedMessage) => {
@@ -45,6 +65,10 @@ function scheduledMessage(channelId) {
 }
 
 function processCommand(receivedMessage) {
+    let isElton = receivedMessage.author.id == 283411716358799360
+    let isBryan = receivedMessage.author.id == 290642739140493312
+    let isRajah = receivedMessage.author.id == 312948893966925826
+
     let fullCommand = receivedMessage.content.substr(1)
     let splitCommand = fullCommand.split(" ")
     let primaryCommand = splitCommand[0]
@@ -54,8 +78,19 @@ function processCommand(receivedMessage) {
     console.log("Arguments: " + arguments)
 
     if (primaryCommand == "help") {
-        monitoredChannel.send("I'm here to help")
+        if (isElton) {
+            monitoredChannel.send("Fuck u figure it out")
+        }
+        else {
+            monitoredChannel.send("I'm here to help")
+        }
     }
+
+    
+    // "The supreme leader has recognized your contribution to the motherland. Your family will be sent an extra bag of rice."
+    // else if (primaryCommand == "praise") {
+    //     pool.query('')
+    // }
     
     else if (primaryCommand == "report") {
         pool.query(
