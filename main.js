@@ -5,6 +5,7 @@ const {pool} = require('./config')
 const client = new Discord.Client()
 
 var monitoredChannel
+const dbClient = await pool.connect()
 
 client.on('ready', () => {
     client.user.setActivity("and listening", {type: "WATCHING"})
@@ -50,7 +51,7 @@ function processCommand(receivedMessage) {
     }
     
     else if (primaryCommand == "report") {
-        pool.query(
+        dbClient.query(
             'INSERT INTO social_credit_score (name, score) VALUES ($1, $2)',
             ['Justin', 3],
             (err) => {
@@ -62,7 +63,7 @@ function processCommand(receivedMessage) {
     }
 
     else if (primaryCommand == "score") {
-        pool.query(
+        dbClient.query(
             'SELECT * FROM social_credit_score WHERE name=$1',
             ['Justin'],
             (err, result) => {
