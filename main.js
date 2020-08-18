@@ -7,7 +7,6 @@ const client = new Discord.Client()
 var monitoredChannel = client.channels.cache.get("245711852514967555")
 
 client.on('ready', () => {
-    pool.connect();
     client.user.setActivity("and listening", {type: "WATCHING"})
     console.log("Connected as " + client.user.tag)
     client.guilds.cache.forEach((guild) => {
