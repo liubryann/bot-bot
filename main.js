@@ -60,7 +60,7 @@ client.on('message', (receivedMessage) => {
 function insertInitalScore(memberId) {
     console.log("Inserting initial score")
     pool.query(
-        'INSERT INTO social_credit_score (id, score) VALUES ($1, 100)',
+        'INSERT INTO social_credit_score (id, score) VALUES ($1, 50)',
         [memberId],
         (err) => {
             if (err) {
@@ -74,7 +74,7 @@ function sendWelcomeMessage(newMember) {
     console.log("Sending welcome message")
     newMember.guild.channels.cache.forEach((channel) => { 
          if (channel.type == 'text') {
-            channel.send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay.")
+            channel.send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 50. Use !help to get started and enjoy your stay.")
             return
         }   
     })
@@ -105,28 +105,58 @@ function processCommand(receivedMessage) {
         }
     }
 
-    
-    // "The supreme leader has recognized your contribution to the motherland. Your family will be sent an extra bag of rice."
-    // else if (primaryCommand == "praise") {
-    //     pool.query('')
-    // }
+    else if (primaryCommand == "praise") {
+      praiseCommand(arguments, receivedMessage)
+    }
     
     else if (primaryCommand == "report") {
       reportCommand(arguments, receivedMessage)
     }
 
     else if (primaryCommand == "score") {
+        scoreCommand(arguments, receivedMessage)
+    }
+}
+
+function praiseCommand(arguments, receivedMessage) {
+    if (validateArguments(arguments, receivedMessage)) {
+        var user = receivedMessage.mentions.users.first()
+        var member = receivedMessage.guild.member(user)
+        var displayName = member ? member.displayName : "this person"
+
         pool.query(
             'SELECT * FROM social_credit_score WHERE id=$1',
-            ['idk'],
+            [user.id],
             (err, result) => {
                 if (err) {
-                    return console.error("Query error", err.stack)
+                    return console.error("SelectScoreByIdQuery error", err.stack)
                 }
-                console.log(result.rows[0])
+
+                if (result.rows[0] != undefined) {
+                    let updatedScore = result.rows[0].score + parseInt(arguments[1])
+                
+                    pool.query(
+                        'UPDATE social_credit_score SET score=$2 WHERE id=$1',
+                        [user.id, updatedScore],
+                        (err) => {
+                            if (err) {
+                                return console.error("UpdateScoreByIdQuery error", err.stack)
+                            }
+                            evaluateScore(updatedScore, receivedMessage, displayName)
+                        }
+                    ) 
+                }
+                else {
+                    receivedMessage.channel.send(displayName + " has not been to China recently but we invite them to join our glorious country.")
+                }
+                
             }
-        )
+        ) 
     }
+    else {
+        receivedMessage.channel.send("Try using !help. The chinese government is happy to assist.")
+    }
+
 }
 
 function reportCommand(arguments, receivedMessage) {
@@ -144,7 +174,6 @@ function reportCommand(arguments, receivedMessage) {
                 }
 
                 if (result.rows[0] != undefined) {
-                    receivedMessage.channel.send("Thank you for your report against " + displayName + "." + " They will be punished accordingly.")
                     let updatedScore = result.rows[0].score - parseInt(arguments[1])
                 
                     pool.query(
@@ -170,8 +199,34 @@ function reportCommand(arguments, receivedMessage) {
     }
 }
 
-function scoreCommand() {
-    console.log("hellu")
+
+function scoreCommand(arguments, receivedMessage) {
+    if (validateScoreArguments(arguments, receivedMessage)) {
+        var user = receivedMessage.mentions.users.first()
+        var member = receivedMessage.guild.member(user)
+        var displayName = member ? member.displayName : "this person"
+
+        pool.query(
+            'SELECT * FROM social_credit_score WHERE id=$1',
+            [user.id],
+            (err, result) => {
+                if (err) {
+                    return console.error("SelectScoreByIdQuery error", err.stack)
+                }
+
+                if (result.rows[0] != undefined) {
+                    evaluateScore(result.rows[0].score, receivedMessage, displayName)
+                }
+                else {
+                    receivedMessage.channel.send(displayName + " has not been to China recently but we invite them to join our glorious country.")
+                }
+                
+            }
+        ) 
+    }
+    else {
+        receivedMessage.channel.send("Try using !help. The chinese government is happy to assist.")
+    }
 }
 
 function retrieveScoreByIdQuery(id, callback) {
@@ -214,13 +269,54 @@ function validateArguments (arguments, receivedMessage) {
     }
 }
 
-function evaluateScore(score, receivedMessage, user) {
-    if (score < 0) {
-        receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + " For their crimes against the Replubic of China they will be subject to capital punishment.")
+function validateScoreArguments(arguments, receivedMessage) {
+    if (arguments.length != 1) {
+        return false
     }
+    else if (receivedMessage.mentions.users.size != 1) {
+        return false 
+    }
+    else {
+        return true
+    }
+}
 
-    else if (score < 100) {
-        receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + " Your family will only be deducted one bag of rice.")
+function evaluateScore(score, receivedMessage, user) {
+    if (score <= 0) {
+        receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + " For their crimes against the Republic of China they will be subject to capital punishment.")
+    }
+    else if (score <= 10) {
+        receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + " They and their family will be imprisoned and subject to labor for 3 generations.")
+    }
+    else if (score <= 20) {
+        receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + "They will be sent to a re-eduation camp in XinJiang")
+    }
+    else if (score <= 30) {
+        receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + " They have been put on a list and will be closely monitored")
+    }
+    else if (score <= 40) {
+        receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + " They are no longer allowed to ride on public transport." )
+    }
+    else if (score <= 50) {
+        receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + " Their family will only be deducted one bag of rice.")
+    }
+    else if (score <= 60) {
+        receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + " The supreme leader has recognized their contribution to the motherland. Their family will be sent an extra bag of rice.")
+    }
+    else if (score <= 70) {
+        receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + " The supreme leader has found them an opening at T1 Esports as a reward for their excellent behaviour.")
+    }
+    else if (score <= 80) {
+        receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + " As a model citizen, the supreme leader has gifted them a brand new Tesla")
+    }
+    else if (score <= 90) {
+        receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + " For their astounding contributions, the supreme leader has sent them a mail-order bride to procreate with.")
+    }
+    else if (score <= 100) {
+        receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + " Their upstanding loyalty to the Republic of China has been rewarded with a luxurious estate in Vancouver.")
+    }
+    else if (score > 100) {
+        receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + " The Emperor invites you to tea.")
     }
 }
 
