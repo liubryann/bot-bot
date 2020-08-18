@@ -132,7 +132,10 @@ function processCommand(receivedMessage) {
 function reportCommand(arguments, receivedMessage) {
     if (validateArguments(arguments, receivedMessage)) {
         let user = receivedMessage.mentions.users.first()
-        receivedMessage.channel.send("Thank you for your report against " + user.displayName + "." + " They will be punished accordingly.")
+        let member = receivedMessage.guild.member(receivedMessage.author)
+        let displayName = member ? member.displayName : "this traitor"
+
+        receivedMessage.channel.send("Thank you for your report against " + displayName + "." + " They will be punished accordingly.")
 
         pool.query(
             'SELECT * FROM social_credit_score WHERE id=$1',
@@ -150,7 +153,7 @@ function reportCommand(arguments, receivedMessage) {
                         if (err) {
                             return console.error("UpdateScoreByIdQuery error", err.stack)
                         }
-                        evaluateScore(updatedScore, receivedMessage, receivedMessage.mentions.users.first().displayName)
+                        evaluateScore(updatedScore, receivedMessage, displayName)
                     }
                 )   
             }
@@ -208,6 +211,10 @@ function validateArguments (arguments, receivedMessage) {
 function evaluateScore(score, receivedMessage, user) {
     if (score < 0) {
         receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + " For their crimes against the Replubic of China they will be subject to capital punishment.")
+    }
+
+    else if (score < 100) {
+        receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + " Your family will only be deducted one bag of rice.")
     }
 }
 
