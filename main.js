@@ -36,13 +36,15 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
     if(oldUserChannel != newUserChannel) {
         console.log("I am here")
         if (oldUserChannel == null) {
+            console.log(":(")
             pool.query = (
                 'SELECT * FROM social_credit_score WHERE id=$1',
-                [newMember.guild.id],
+                [newMember.member.id],
                 (err, result) => {
                     if (err) {
                         return console.error("Query error", err.stack)
                     }
+                    console.log("here2")
                     console.log(result.rows[0])
                 }
             )
