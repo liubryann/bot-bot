@@ -42,7 +42,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
                     if (result.rows[0] == undefined) {
                         
                         
-                        getGeneralChannel.send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay.")      
+                        getGeneralChannel().send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay.")      
 
                         // generalChannel.send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay.")
                         // getGeneralChannel(newMember).send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay." )
