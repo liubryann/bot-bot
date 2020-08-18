@@ -40,7 +40,9 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
                         return console.error("Query error", err.stack)
                     }
                     if (result.rows[0] == undefined) {
-                        getGeneralChannel(newMember).send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay." )
+                        let generalChannel = getGeneralChannel(newMember)
+                        generalChannel.send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay.")
+                        // getGeneralChannel(newMember).send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay." )
                         insertInitalScore(newMember.member.id)
                     }
                 }
@@ -74,6 +76,7 @@ function insertInitalScore(memberId) {
 function getGeneralChannel(voiceState) {
     voiceState.guild.channels.cache.forEach((channel) => {
         if (channel.type == 'text'){
+            console.log(channel.id)
             return channel; 
         }
     })
