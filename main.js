@@ -41,8 +41,8 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
                     }
                     if (result.rows[0] == undefined) {
                         
-                        
-                        getGeneralChannel().send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay.")      
+                        sendWelcomeMessage(newMember)
+                        // getGeneralChannel().send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay.")      
 
                         // generalChannel.send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay.")
                         // getGeneralChannel(newMember).send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay." )
@@ -76,13 +76,12 @@ function insertInitalScore(memberId) {
     )
 }
 
-function getGeneralChannel() {
-    client.guilds.cache.forEach((guild) => {
-        guild.channels.cache.forEach((channel) => { 
-            if (channel.type == 'text') {
-                return channel
-            }
-        })
+function sendWelcomeMessage(voiceState) {
+    voiceState.guild.channels.cache.forEach((channel) => { 
+         if (channel.type == 'text') {
+            channel.send("Welcome to China " + newMember.member.displayName + "." + " Your social credit score has been set to 100. Enjoy your stay.")
+            break
+        }   
     })
 }
 
