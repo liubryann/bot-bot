@@ -4,7 +4,7 @@ require('dotenv').config()
 const {pool} = require('./config')
 const client = new Discord.Client()
 
-// var monitoredChannel = client.channels.cache.get("245711852514967555")
+var monitoredChannel
 
 client.on('ready', () => {
     client.user.setActivity("and listening", {type: "WATCHING"})
@@ -15,6 +15,7 @@ client.on('ready', () => {
                 cron.schedule("0 0 * * *", () => {
                     scheduledMessage(channel.id)
                 })
+                monitoredChannel = client.channels.cache.get(channel.id)
             }
         })
     })
