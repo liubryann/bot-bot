@@ -134,7 +134,7 @@ function praiseCommand(arguments, receivedMessage) {
 
                 if (result.rows[0] != undefined) {
                     var updatedScore
-                    if (user == receivedMessage.member){
+                    if (user == receivedMessage.member.user){
                         receivedMessage.channel.send("In China we are proud of our country, not in ourselves.")
                         updatedScore = result.rows[0].score - parseInt(arguments[1])
                     }
