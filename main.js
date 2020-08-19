@@ -133,8 +133,14 @@ function praiseCommand(arguments, receivedMessage) {
                 }
 
                 if (result.rows[0] != undefined) {
-                    let updatedScore = result.rows[0].score + parseInt(arguments[1])
-                
+                    var updatedScore
+                    if (user == receivedMessage.member){
+                        receivedMessage.channel.send("In China we are proud of our country, not in ourselves.")
+                        updatedScore = result.rows[0].score - parseInt(arguments[1])
+                    }
+                    else {
+                        updatedScore = result.rows[0].score + parseInt(arguments[1])
+                    }     
                     pool.query(
                         'UPDATE social_credit_score SET score=$2 WHERE id=$1',
                         [user.id, updatedScore],
@@ -310,7 +316,7 @@ function evaluateScore(score, receivedMessage, user) {
         receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + " The supreme leader has found them an opening at T1 Esports as a reward for their excellent behaviour.")
     }
     else if (score <= 80) {
-        receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + " As a model citizen, the supreme leader has gifted them a brand new Tesla")
+        receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + " As a model citizen, the supreme leader has gifted them a brand new Tesla.")
     }
     else if (score <= 90) {
         receivedMessage.channel.send(user + "'s social credit score is " + score.toString() + "." + " For their astounding contributions, the supreme leader has sent them a mail-order bride to procreate with.")
