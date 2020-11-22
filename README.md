@@ -1,2 +1,2 @@
 # bot-bot
-Bot for bots
+Personal discord bot for me and friends channel
